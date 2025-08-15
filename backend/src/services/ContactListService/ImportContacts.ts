@@ -5,6 +5,7 @@ import ContactListItem from "../../models/ContactListItem";
 import CheckContactNumber from "../WbotServices/CheckNumber";
 import { logger } from "../../utils/logger";
 import FindOrCreateGroupService from "../GroupService/FindOrCreateGroupService";
+import AppError from "../../errors/AppError";
 // import CheckContactNumber from "../WbotServices/CheckNumber";
 
 export async function ImportContacts(
@@ -15,6 +16,12 @@ export async function ImportContacts(
   const workbook = XLSX.readFile(file?.path as string);
   const worksheet = head(Object.values(workbook.Sheets)) as any;
   const rows: any[] = XLSX.utils.sheet_to_json(worksheet, { header: 0 });
+  
+  // Verificar se o número de contatos não excede 200
+  if (rows.length > 200) {
+    throw new AppError("O tamanho total de contatos importados por arquivo deve ser menor ou igual a 200.");
+  }
+  
   const contacts = rows.map(row => {
     let name = "";
     let number = "";

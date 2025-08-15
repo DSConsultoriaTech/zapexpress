@@ -28,6 +28,7 @@
   - Busca/criação automática de grupos
   - Associação de contatos aos grupos durante importação
   - Tratamento de erros para grupos inválidos
+  - **Validação de limite:** Máximo 200 contatos por arquivo
 
 ### 5. Modificação na Importação Direta de Contatos
 - **Arquivo:** `backend/src/services/ContactServices/ImportContacts.ts`
@@ -36,6 +37,7 @@
   - Busca/criação automática de grupos
   - Associação de contatos aos grupos durante importação
   - Tratamento de erros para grupos inválidos
+  - **Validação de limite:** Máximo 200 contatos por arquivo
 
 ## Como Usar
 
@@ -53,17 +55,23 @@ A planilha deve conter as seguintes colunas:
 - **Email:** "email", "e-mail", "Email", "E-mail"
 - **Grupo:** "grupo", "Grupo", "group", "Group"
 
+### Limitações
+- **Máximo de contatos:** 200 contatos por arquivo
+- **Mensagem de erro:** "O tamanho total de contatos importados por arquivo deve ser menor ou igual a 200."
+
 ### Comportamento
-1. Se a coluna de grupo estiver presente e preenchida:
+1. **Validação de limite:** Sistema verifica se o arquivo tem mais de 200 linhas antes de processar
+2. **Se a coluna de grupo estiver presente e preenchida:**
    - O sistema busca um grupo existente com esse nome
    - Se não encontrar, cria um novo grupo automaticamente
    - Associa o contato ao grupo encontrado/criado
 
-2. Se a coluna de grupo estiver vazia ou não existir:
+3. **Se a coluna de grupo estiver vazia ou não existir:**
    - O contato é importado sem associação a grupo
 
-3. Tratamento de erros:
+4. **Tratamento de erros:**
    - Se houver erro ao processar o grupo, o contato é importado sem grupo
+   - Se o arquivo exceder 200 contatos, a importação é bloqueada
    - Erros são logados para análise
 
 ## Execução da Migração
@@ -84,4 +92,5 @@ yarn migration:run
 2. **Flexibilidade:** Suporte a nomes de colunas em português e inglês
 3. **Robustez:** Tratamento de erros e logs para debugging
 4. **Compatibilidade:** Mantém compatibilidade com importações existentes
-5. **Escalabilidade:** Grupos são criados automaticamente conforme necessário 
+5. **Escalabilidade:** Grupos são criados automaticamente conforme necessário
+6. **Controle de Volume:** Limita importações a 200 contatos por arquivo para evitar sobrecarga 
